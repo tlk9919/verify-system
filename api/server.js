@@ -59,8 +59,10 @@ export default async function handler(req, res) {
   try {
     switch(id) {
       case 'ini':
+      case 'notice':
         return await getAnnouncement(supabase, res);
       case 'kmlogon':
+      case 'kmlogin':
         return await loginVerify(supabase, req, res);
       default:
         return res.send(rc4Encrypt(JSON.stringify({ code: -1, msg: '无效的请求' }), RC4_KEY));
@@ -76,22 +78,24 @@ async function getAnnouncement(supabase, res) {
     .select('value')
     .eq('name', 'announcement')
     .single();
-  
+
   const { data: version } = await supabase
     .from('config')
     .select('value')
     .eq('name', 'version')
     .single();
-  
+
   const response = {
-    code: 1,
-    app_gg: announcement?.value || '欢迎使用！',
-    app_ver: version?.value || '1.0',
-    app_update_url: 'http://your-domain.com/update.apk',
-    app_update_must: 'false',
-    app_update_show: '修复已知问题'
+    code: 200,
+    msg: {
+      app_gg: announcement?.value || '欢迎使用！',
+      app_ver: version?.value || '1.0',
+      app_update_url: 'http://your-domain.com/update.apk',
+      app_update_must: 'false',
+      app_update_show: '修复已知问题'
+    }
   };
-  
+
   return res.send(rc4Encrypt(JSON.stringify(response), RC4_KEY));
 }
 
@@ -150,15 +154,17 @@ async function loginVerify(supabase, req, res) {
   
   const checkString = now + 'bizinb_key_2026' + markcode;
   const checkSign = crypto.createHash('md5').update(checkString).digest('hex');
-  
+
   const response = {
-    code: 5365,
-    time: now,
-    msg: {
-      vip: row.endtime
+    'xb34091862aa9871328c6ca74875063c1': 72267,
+    'p645ee9de7bd65595884d4a38b53ddbeb': now,
+    'nb73d7ed95d1b6ba7223df7d8661fcfdb': {
+      'w43fad5f47dd4266441df9b659318a09e': checkSign,
+      'h3e272e62cf9e1b9013b8c849a0cdbd29': row.endtime,
+      'p85ea6ca424b265392a4fcd30c527a817': row.id
     },
-    check: checkSign
+    'ea681092c8e0332fbd8a83e2ce6cf04dd': checkSign
   };
-  
+
   return res.send(rc4Encrypt(JSON.stringify(response), RC4_KEY));
 }

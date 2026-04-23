@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/server.php", "destination": "/api/server" }
+    { "source": "/server.php", "destination": "/api/server" },
+    { "source": "/api/(.*)", "destination": "/api/server" }
   ]
 }
